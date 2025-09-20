@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem; // new Input System
 
 public class Player : MonoBehaviour
 {
@@ -11,22 +11,32 @@ public class Player : MonoBehaviour
     private float verticalScreenLimit = 6f;
     private bool canShoot = true;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private Vector2 moveInput;
+    private bool shootInput;
 
-    // Update is called once per frame
     void Update()
     {
         Movement();
         Shooting();
     }
 
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        moveInput = context.ReadValue<Vector2>();
+    }
+
+    public void OnShoot(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            shootInput = true;
+        else if (context.canceled)
+            shootInput = false;
+    }
+
     void Movement()
     {
-        transform.Translate(new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0) * Time.deltaTime * speed);
+        transform.Translate(new Vector3(moveInput.x, moveInput.y, 0) * Time.deltaTime * speed);
+
         if (transform.position.x > horizontalScreenLimit || transform.position.x <= -horizontalScreenLimit)
         {
             transform.position = new Vector3(transform.position.x * -1f, transform.position.y, 0);
@@ -39,11 +49,11 @@ public class Player : MonoBehaviour
 
     void Shooting()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && canShoot)
+        if (shootInput && canShoot)
         {
             Instantiate(laserPrefab, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
             canShoot = false;
-            StartCoroutine("Cooldown");
+            StartCoroutine(Cooldown());
         }
     }
 
@@ -53,3 +63,4 @@ public class Player : MonoBehaviour
         canShoot = true;
     }
 }
+
