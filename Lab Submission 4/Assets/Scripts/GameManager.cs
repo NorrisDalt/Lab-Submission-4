@@ -15,8 +15,8 @@ public class GameManager : MonoBehaviour
     public int meteorCount = 0;
 
     [Header("Meteor Spawn Settings")]
-    public float spawnRadius = 5f;     // Distance around the player to spawn meteors
-    public float spawnInterval = 2f;   // Seconds between meteor spawns
+    public float spawnRadius = 5f; // Distance around the player to spawn meteors
+    public float spawnInterval = 2f; // Seconds between meteor spawns
 
     private GameObject player;
 
@@ -71,7 +71,6 @@ public class GameManager : MonoBehaviour
 
     void SpawnBigMeteor()
     {
-        // Big meteor spawns at the top of the screen randomly
         float xPos = Random.Range(-8f, 8f);
         Vector2 spawnPos = new Vector2(xPos, 7.5f);
         Instantiate(bigMeteorPrefab, spawnPos, Quaternion.identity);

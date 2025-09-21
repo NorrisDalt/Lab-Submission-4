@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Meteor : MonoBehaviour
 {
-    public float orbitSpeed = 2f;         // Speed of orbit around player
+    public float orbitSpeed = 2f;
     public float collisionAvoidance = 1f; // How strongly to push away from other meteors/player
     public float playerRepulsionMultiplier = 2f; // Stronger push away from player
     private GameObject player;
@@ -20,7 +20,7 @@ public class Meteor : MonoBehaviour
 
         Vector2 toPlayer = player.transform.position - transform.position;
 
-        // Orbit movement: perpendicular to player
+        // Orbit movement
         Vector2 perpendicular = new Vector2(-toPlayer.y, toPlayer.x).normalized;
         float distance = toPlayer.magnitude;
         float dynamicOrbitSpeed = distance * orbitSpeed * Time.deltaTime;
@@ -36,7 +36,7 @@ public class Meteor : MonoBehaviour
                 float multiplier = 1f;
 
                 if (hit.tag == "Player")
-                    multiplier = playerRepulsionMultiplier; // stronger repulsion from player
+                    multiplier = playerRepulsionMultiplier; // Stronger repulsion from player
 
                 if (hit.tag == "Meteor" || hit.tag == "Player")
                 {
