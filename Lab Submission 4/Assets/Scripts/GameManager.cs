@@ -14,19 +14,25 @@ public class GameManager : MonoBehaviour
 
     public int meteorCount = 0;
 
+    [Header("Meteor Spawn Settings")]
+    public float spawnRadius = 5f;     // Distance around the player to spawn meteors
+    public float spawnInterval = 2f;   // Seconds between meteor spawns
+
+    private GameObject player;
+
     void Start()
     {
         // Spawn the player
-        GameObject playerInstance = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+        player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
         // Make the virtual camera follow the spawned player
-        if (vcam != null && playerInstance != null)
+        if (vcam != null && player != null)
         {
-            vcam.Follow = playerInstance.transform;
+            vcam.Follow = player.transform;
         }
 
         // Start spawning meteors
-        InvokeRepeating("SpawnMeteor", 1f, 2f);
+        InvokeRepeating("SpawnMeteor", 1f, spawnInterval);
     }
 
     void Update()
@@ -37,25 +43,37 @@ public class GameManager : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.R) && gameOver)
-        {
             SceneManager.LoadScene("Week5Lab");
-        }
 
-        if (meteorCount == 5)
+        if (meteorCount >= 5)
         {
-            BigMeteor();
+            meteorCount = 0;
+            SpawnBigMeteor();
         }
     }
 
     void SpawnMeteor()
     {
-        Instantiate(meteorPrefab, new Vector3(Random.Range(-8f, 8f), 7.5f, 0), Quaternion.identity);
+        if (player == null) return;
+
+        Vector2 spawnPos;
+        int attempts = 0;
+
+        do
+        {
+            spawnPos = (Vector2)player.transform.position + Random.insideUnitCircle * spawnRadius;
+            attempts++;
+        }
+        while (Vector2.Distance(spawnPos, player.transform.position) < 1.5f && attempts < 10); // keep at least 1.5 units away
+
+        Instantiate(meteorPrefab, spawnPos, Quaternion.identity);
     }
 
-    void BigMeteor()
+    void SpawnBigMeteor()
     {
-        meteorCount = 0;
-        Instantiate(bigMeteorPrefab, new Vector3(Random.Range(-8f, 8f), 7.5f, 0), Quaternion.identity);
+        // Big meteor spawns at the top of the screen randomly
+        float xPos = Random.Range(-8f, 8f);
+        Vector2 spawnPos = new Vector2(xPos, 7.5f);
+        Instantiate(bigMeteorPrefab, spawnPos, Quaternion.identity);
     }
 }
-

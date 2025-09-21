@@ -4,34 +4,64 @@ using UnityEngine;
 
 public class Meteor : MonoBehaviour
 {
-    
-    // Start is called before the first frame update
+    public float orbitSpeed = 2f;         // Speed of orbit around player
+    public float collisionAvoidance = 1f; // How strongly to push away from other meteors/player
+    public float playerRepulsionMultiplier = 2f; // Stronger push away from player
+    private GameObject player;
+
     void Start()
     {
-        
+        player = GameObject.FindGameObjectWithTag("Player");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.down * Time.deltaTime * 2f);
+        if (player == null) return;
 
-        if (transform.position.y < -11f)
+        Vector2 toPlayer = player.transform.position - transform.position;
+
+        // Orbit movement: perpendicular to player
+        Vector2 perpendicular = new Vector2(-toPlayer.y, toPlayer.x).normalized;
+        float distance = toPlayer.magnitude;
+        float dynamicOrbitSpeed = distance * orbitSpeed * Time.deltaTime;
+
+        Vector3 movement = perpendicular * dynamicOrbitSpeed;
+
+        // Collision avoidance with meteors and player
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 0.5f);
+        foreach (var hit in hits)
         {
-            Destroy(this.gameObject);
+            if (hit != null && hit.gameObject != this.gameObject)
+            {
+                float multiplier = 1f;
+
+                if (hit.tag == "Player")
+                    multiplier = playerRepulsionMultiplier; // stronger repulsion from player
+
+                if (hit.tag == "Meteor" || hit.tag == "Player")
+                {
+                    Vector2 away = (Vector2)(transform.position - hit.transform.position).normalized;
+                    movement += (Vector3)(away * collisionAvoidance * multiplier * Time.deltaTime);
+                }
+            }
         }
+
+        transform.position += movement;
     }
 
     private void OnTriggerEnter2D(Collider2D whatIHit)
     {
+        GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
         if (whatIHit.tag == "Player")
         {
-            GameObject.Find("GameManager").GetComponent<GameManager>().gameOver = true;
+            gameManager.gameOver = true;
             Destroy(whatIHit.gameObject);
             Destroy(this.gameObject);
-        } else if (whatIHit.tag == "Laser")
+        }
+        else if (whatIHit.tag == "Laser")
         {
-            GameObject.Find("GameManager").GetComponent<GameManager>().meteorCount++;
+            gameManager.meteorCount++;
             Destroy(whatIHit.gameObject);
             Destroy(this.gameObject);
         }
