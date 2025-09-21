@@ -8,10 +8,13 @@ public class Meteor : MonoBehaviour
     public float collisionAvoidance = 1f; // How strongly to push away from other meteors/player
     public float playerRepulsionMultiplier = 2f; // Stronger push away from player
     private GameObject player;
+    private IGameEvents gameEvents;
+
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        gameEvents = FindObjectOfType<GameManager>();
     }
 
     void Update()
@@ -55,15 +58,15 @@ public class Meteor : MonoBehaviour
 
         if (whatIHit.tag == "Player")
         {
-            gameManager.gameOver = true;
+            gameEvents.OnPlayerHit();
             Destroy(whatIHit.gameObject);
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
         else if (whatIHit.tag == "Laser")
         {
-            gameManager.meteorCount++;
+            gameEvents.OnMeteorDestroyed();
             Destroy(whatIHit.gameObject);
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
     }
 }

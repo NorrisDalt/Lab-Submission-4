@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Cinemachine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, IGameEvents
 {
     public GameObject playerPrefab;
-    public CinemachineVirtualCamera vcam;
     public GameObject meteorPrefab;
     public GameObject bigMeteorPrefab;
-    public bool gameOver = false;
 
+    public CinemachineVirtualCamera vcam;
+
+    public bool gameOver = false;
     public int meteorCount = 0;
 
     [Header("Meteor Spawn Settings")]
@@ -19,6 +20,8 @@ public class GameManager : MonoBehaviour
     public float spawnInterval = 2f; // Seconds between meteor spawns
 
     private GameObject player;
+    private ISpawner meteorSpawner;
+    private ISpawner bigMeteorSpawner;
 
     void Start()
     {
@@ -31,8 +34,31 @@ public class GameManager : MonoBehaviour
             vcam.Follow = player.transform;
         }
 
+        meteorSpawner = new MeteorSpawner(meteorPrefab, player.transform, spawnRadius);
+        bigMeteorSpawner = new BigMeteorSpawner(bigMeteorPrefab);
+
         // Start spawning meteors
         InvokeRepeating("SpawnMeteor", 1f, spawnInterval);
+    }
+
+    public void OnPlayerHit()
+    {
+        gameOver = true;
+    }
+
+    public void OnMeteorDestroyed()
+    {
+        meteorCount++;
+        if (meteorCount >= 5)
+        {
+            meteorCount = 0;
+            bigMeteorSpawner.Spawn();
+        }
+    }
+
+    public void OnBigMeteorDestroyed()
+    {
+        Debug.Log("Future explosion effect");
     }
 
     void Update()
@@ -44,12 +70,6 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R) && gameOver)
             SceneManager.LoadScene("Week5Lab");
-
-        if (meteorCount >= 5)
-        {
-            meteorCount = 0;
-            SpawnBigMeteor();
-        }
     }
 
     void SpawnMeteor()
