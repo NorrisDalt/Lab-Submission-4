@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using Cinemachine;
 
@@ -12,7 +9,7 @@ public class CameraShakeManager : MonoBehaviour
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -20,6 +17,18 @@ public class CameraShakeManager : MonoBehaviour
 
     public void CameraShake(CinemachineImpulseSource impulseSource)
     {
-        impulseSource.GenerateImpulseWithForce(globalShakeForce);
+        if (impulseSource != null)
+            impulseSource.GenerateImpulseWithForce(globalShakeForce);
+    }
+
+    public void ZoomOut(CinemachineVirtualCamera vcam, float fov)
+    {
+        if (vcam != null)
+            vcam.m_Lens.FieldOfView = fov; // works for perspective projection
+    }
+    public void ResetZoom(CinemachineVirtualCamera vcam, float defaultFov)
+    {
+        if (vcam != null)
+            vcam.m_Lens.FieldOfView = defaultFov;
     }
 }

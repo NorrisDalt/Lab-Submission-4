@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour, IGameEvents
         }
 
         meteorSpawner = new MeteorSpawner(meteorPrefab, player.transform, spawnRadius);
-        bigMeteorSpawner = new BigMeteorSpawner(bigMeteorPrefab);
+        bigMeteorSpawner = new BigMeteorSpawner(bigMeteorPrefab, vcam);
 
         // Start spawning meteors
         InvokeRepeating("SpawnMeteor", 1f, spawnInterval);
@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour, IGameEvents
     public void OnBigMeteorDestroyed()
     {
         CameraShakeManager.instance.CameraShake(impulseSource);
+        CameraShakeManager.instance.ResetZoom(vcam, 60f);
         Debug.Log("Future explosion effect");
     }
 
