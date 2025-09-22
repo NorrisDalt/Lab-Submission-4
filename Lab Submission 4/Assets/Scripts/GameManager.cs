@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour, IGameEvents
     public GameObject bigMeteorPrefab;
 
     public CinemachineVirtualCamera vcam;
+    private CinemachineImpulseSource impulseSource;
 
     public bool gameOver = false;
     public int meteorCount = 0;
@@ -27,6 +28,8 @@ public class GameManager : MonoBehaviour, IGameEvents
     {
         // Spawn the player
         player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+
+        impulseSource = GetComponent <CinemachineImpulseSource>();
 
         // Make the virtual camera follow the spawned player
         if (vcam != null && player != null)
@@ -58,6 +61,7 @@ public class GameManager : MonoBehaviour, IGameEvents
 
     public void OnBigMeteorDestroyed()
     {
+        CameraShakeManager.instance.CameraShake(impulseSource);
         Debug.Log("Future explosion effect");
     }
 
